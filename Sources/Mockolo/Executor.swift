@@ -48,6 +48,10 @@ struct Executor: ParsableCommand {
     private  var enableArgsHistory: Bool = false
 
     @Flag(name: .long,
+          help: "Whether to enable stubbing functionality in generated mocks (default = false). When enabled, mocks can be initialized with a real object for proxying method calls and property access.")
+    private var enableStubbing: Bool = false
+
+    @Flag(name: .long,
           help: "Whether to disable generating Combine streams in mocks (default = false). Set this to true to control how your streams are created in your mocks.")
     private var disableCombineDefaultValues: Bool = false
 
@@ -203,6 +207,7 @@ struct Executor: ParsableCommand {
                          allowSetCallCount: allowSetCallCount,
                          enableFuncArgsHistory: enableArgsHistory,
                          disableCombineDefaultValues: disableCombineDefaultValues,
+                         enableStubbing: enableStubbing,
                          mockFinal: mockFinal,
                          testableImports: testableImports,
                          customImports: customImports,
