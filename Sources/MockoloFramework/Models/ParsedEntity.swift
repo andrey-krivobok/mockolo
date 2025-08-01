@@ -141,12 +141,14 @@ struct GenerationArguments {
     var mockFinal: Bool
     var enableFuncArgsHistory: Bool
     var disableCombineDefaultValues: Bool
+    var enableStubbing: Bool
     static let `default` = GenerationArguments(
         useTemplateFunc: false,
         allowSetCallCount: false,
         mockFinal: false,
         enableFuncArgsHistory: false,
-        disableCombineDefaultValues: false
+        disableCombineDefaultValues: false,
+        enableStubbing: false
     )
 }
 

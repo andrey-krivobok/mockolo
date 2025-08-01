@@ -91,7 +91,9 @@ extension VariableModel {
                 \(setCallCountVarDecl)
                 \(1.tab)\(propertyWrapper)\(staticSpace)private var \(underlyingName): \(underlyingType)\(assignVal)\(accessorBlock)
                 \(1.tab)\(acl)\(staticSpace)\(overrideStr)\(modifierTypeStr)var \(name): \(type.typeName) {
-                \(2.tab)get { return \(underlyingName) }
+                \(2.tab)get { 
+                \(arguments.enableStubbing ? "\(3.tab)if let _stub = _stub { return _stub.\(name) }\n" : "")\(3.tab)return \(underlyingName) 
+                \(2.tab)}
                 \(2.tab)set { \(underlyingName) = newValue }
                 \(1.tab)}
                 """
@@ -99,7 +101,13 @@ extension VariableModel {
                 template = """
                 
                 \(setCallCountVarDecl)
-                \(1.tab)\(propertyWrapper)\(acl)\(staticSpace)\(overrideStr)\(modifierTypeStr)var \(name): \(type.typeName)\(assignVal)\(accessorBlock)
+                \(1.tab)\(propertyWrapper)private var \(underlyingName): \(type.typeName)\(assignVal)\(accessorBlock)
+                \(1.tab)\(acl)\(staticSpace)\(overrideStr)\(modifierTypeStr)var \(name): \(type.typeName) {
+                \(2.tab)get { 
+                \(arguments.enableStubbing ? "\(3.tab)if let _stub = _stub { return _stub.\(name) }\n" : "")\(3.tab)return \(underlyingName) 
+                \(2.tab)}
+                \(2.tab)set { \(underlyingName) = newValue }
+                \(1.tab)}
                 """
             }
 
