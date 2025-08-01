@@ -65,7 +65,8 @@ final class ClosureModel: Model {
                                     cast: cast,
                                     name: overloadingResolvedName + .handlerSuffix,
                                     params: params,
-                                    returnDefaultType: funcReturnType)
+                                    returnDefaultType: funcReturnType,
+                                    arguments: arguments)
     }
 }
 

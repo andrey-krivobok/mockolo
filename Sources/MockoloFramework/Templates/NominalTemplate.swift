@@ -72,6 +72,10 @@ extension NominalModel {
         )
 
         var body = ""
+        // Add stub property for stubbing functionality
+        if arguments.enableStubbing {
+            body += "\(1.tab)private var _stub: \(inheritedTypeName)?\n"
+        }
         if !extraInits.isEmpty {
             body += "\(extraInits)\n"
         }
@@ -175,11 +179,21 @@ extension NominalModel {
                 }
             }.joined(separator: "\n")
             
-            initTemplate = """
-            \(1.tab)\(acl)init(\(params)) {
-            \(paramsAssign)
-            \(1.tab)}
-            """
+            if arguments.enableStubbing {
+                let stubParam = params.isEmpty ? "stub: \(inheritedTypeName)? = nil" : "stub: \(inheritedTypeName)? = nil, \(params)"
+                initTemplate = """
+                \(1.tab)\(acl)init(\(stubParam)) {
+                \(2.tab)self._stub = stub
+                \(paramsAssign)
+                \(1.tab)}
+                """
+            } else {
+                initTemplate = """
+                \(1.tab)\(acl)init(\(params)) {
+                \(paramsAssign)
+                \(1.tab)}
+                """
+            }
         }
         
         let extraInitParamNames = initParamCandidates.map{$0.name}
@@ -228,11 +242,21 @@ extension NominalModel {
                         }
                     }.joined(separator: "\n")
 
-                    return """
-                    \(1.tab)\(modifier)\(mAcl)init\(genericTypesStr)(\(paramDeclsStr)) \(suffixStr){
-                    \(paramsAssign)
-                    \(1.tab)}
-                    """
+                    if arguments.enableStubbing {
+                        let stubParamDecl = paramDeclsStr.isEmpty ? "stub: \(inheritedTypeName)? = nil" : "stub: \(inheritedTypeName)? = nil, \(paramDeclsStr)"
+                        return """
+                        \(1.tab)\(modifier)\(mAcl)init\(genericTypesStr)(\(stubParamDecl)) \(suffixStr){
+                        \(2.tab)self._stub = stub
+                        \(paramsAssign)
+                        \(1.tab)}
+                        """
+                    } else {
+                        return """
+                        \(1.tab)\(modifier)\(mAcl)init\(genericTypesStr)(\(paramDeclsStr)) \(suffixStr){
+                        \(paramsAssign)
+                        \(1.tab)}
+                        """
+                    }
                 }
             }
             return nil
@@ -254,6 +278,16 @@ extension NominalModel {
                 blankInit = "\(acl)init() { }"
             }
             template += "\(1.tab)\(blankInit)\n"
+            
+            if arguments.enableStubbing {
+                let stubInit: String
+                if context.annotatedTypeKind == .class {
+                    stubInit = "\(acl)override init(stub: \(inheritedTypeName)? = nil) { self._stub = stub }"
+                } else {
+                    stubInit = "\(acl)init(stub: \(inheritedTypeName)? = nil) { self._stub = stub }"
+                }
+                template += "\(1.tab)\(stubInit)\n"
+            }
         }
 
         if !initTemplate.isEmpty {

@@ -21,7 +21,8 @@ extension ClosureModel {
                               cast: String?,
                               name: String,
                               params: [(String, SwiftType)],
-                              returnDefaultType: SwiftType) -> String {
+                              returnDefaultType: SwiftType,
+                              arguments: GenerationArguments) -> String {
         let handlerParamValsStr = params.map { (argName, argType) -> String in
             if argType.isAutoclosure {
                 return argName.safeName + "()"
@@ -44,9 +45,15 @@ extension ClosureModel {
         
         let returnStr = returnDefaultType.isVoid ? "" : "return "
 
+        let stubbingBlock = arguments.enableStubbing ? """
+        } else if let _stub = _stub {
+        \(3.tab)\(returnStr)\(prefix)_stub.\(name.replacingOccurrences(of: String.handlerSuffix, with: ""))(\(handlerParamValsStr))\(cast ?? "")
+        """ : ""
+        
         return """
         \(2.tab)if let \(name) = \(name) {
         \(3.tab)\(returnStr)\(prefix)\(name)(\(handlerParamValsStr))\(cast ?? "")
+        \(2.tab)\(stubbingBlock)
         \(2.tab)}
         \(2.tab)\(handlerReturnDefault)
         """
